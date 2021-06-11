@@ -93,8 +93,7 @@ public class SellerDaoJDBC implements SellerDao {
 		conn.setAutoCommit(false);
 		pst =conn.prepareStatement("UPDATE seller " 
 				+"SET Name = ?, Email =?, BirthDate=?, BaseSalary=?, DepartmentId=?"
-				+"WHERE "
-				+"(Id = 8) ",
+				+"WHERE Id = 8 ",
 				
 				PreparedStatement.RETURN_GENERATED_KEYS
 				);
@@ -145,11 +144,7 @@ public class SellerDaoJDBC implements SellerDao {
 	public Seller findById(Integer id) {
 		ResultSet rs = null;
 		
-		try {
-			
-		
-		
-			
+		try {			
 			pst =conn.prepareStatement(
 					"SELECT seller.*,department.Name as DepName "
 					+ "FROM seller INNER JOIN department "
@@ -161,21 +156,13 @@ public class SellerDaoJDBC implements SellerDao {
 			
 			 if(rs.next()) {
 				 
-				 Department dep = new Department();
-				 dep.setId(rs.getInt("DepartmentId"));
-				 dep.setName(rs.getString("DepName"));
+				 Department dep = instantiateDepartment(rs);
 				 
-				 Seller seller = new Seller(rs.getInt("Id"),
-						             rs.getString("Name"),
-						             rs.getString("Email"),
-						             rs.getDate("BirthDate"), 
-						             rs.getDouble("BaseSalary"), dep);
+				 Seller seller = instantiatSeller(rs,dep);
 				 return seller;
 				  
 			 }
 			 return null;
-			
-			
 			
 			
 		}catch(SQLException e) {
@@ -188,6 +175,23 @@ public class SellerDaoJDBC implements SellerDao {
 			
 		}
 		
+	}
+
+	//helper method to instantiate a seller
+	private Seller instantiatSeller(ResultSet rs, Department dep) throws SQLException {
+		Seller seller =new Seller(rs.getInt("Id"),
+	             rs.getString("Name"),
+	             rs.getString("Email"),
+	             rs.getDate("BirthDate"), 
+	             rs.getDouble("BaseSalary"), dep);
+        return seller;
+	}
+  //helper method to instantiate a department
+	private Department instantiateDepartment(ResultSet rs) throws SQLException {
+		Department dep = new Department();
+		 dep.setId(rs.getInt("DepartmentId"));
+		 dep.setName(rs.getString("DepName"));
+		 return dep;
 	}
 
 	@Override
