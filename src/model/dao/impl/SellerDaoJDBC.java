@@ -34,7 +34,7 @@ public class SellerDaoJDBC implements SellerDao {
 	
 	@Override
 	public void insert(Seller seller) {
-		
+		 ResultSet rs = null;
 		
 		try {
 			conn = DB.getConnection();
@@ -63,12 +63,23 @@ public class SellerDaoJDBC implements SellerDao {
 			pst.setDouble(4,sellerDao.getBaseSalary() );
 			pst.setInt(5, sellerDao.getDepartment().getId());
 			
-			
-			conn.commit();
-			
+
 		  int ArrowsAffected = pst.executeUpdate();
-		  System.out.println("Arrows Effected " + ArrowsAffected);
-		  
+		  /*verificar se teve linha afetada e popular
+		   * o objeto com o id gerado*/
+		  if(ArrowsAffected >0) {
+			  System.out.println("Arrows Effected " + ArrowsAffected);
+			  rs = pst.getGeneratedKeys();
+		       if(rs.next()) {
+		    	   int id = rs.getInt(1);
+		    	   seller.setId(id);
+		       }else {
+		    	   //no caso de algum erro lançar uma exception
+		    	   throw new DbException("unexpected error! no rows affected! ");
+		    	   
+		       }
+		  }
+		  conn.commit();
 		}catch(SQLException e) {
 			
 			try {
@@ -81,8 +92,9 @@ public class SellerDaoJDBC implements SellerDao {
 			
 			
 		}finally {
+			DB.closeResultSet(rs);
 			DB.closeStatement(pst);
-			DB.closeConnection();
+			
 			
 		}
 		
@@ -236,12 +248,20 @@ public class SellerDaoJDBC implements SellerDao {
 			
 			rs=pst.executeQuery();
 				
-				 	while(rs.next()) {
-					  Department dep = instantiateDepartment(rs);
-					  Seller seller = instantiatSeller(rs,dep);
-					  list.add(seller);
-				
+			 Map<Integer,Department> map = new HashMap<>();
+			  while(rs.next()) {
+				  //verificação do department pelo map
+				  Department dep = map.get(rs.getInt("DepartmentId"));
+				  
+				  if(dep ==null) {
+					  dep = instantiateDepartment(rs);
+					  map.put(rs.getInt("DepartmentId"), dep);
+		            	   
 				  }
+				  
+				  Seller seller = instantiatSeller(rs, dep);
+				  list.add(seller);
+			  }
 			
 		}catch(SQLException e) {
 			

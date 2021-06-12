@@ -30,6 +30,7 @@ public class Program {
 		SellerDao sellerDao1 = DaoFactory.createSellerDao();
 		System.out.println("Department Name: " + dep.getName());
 		list = sellerDao1.findByDepartment(dep);
+		list.sort((p1,p2) -> p1.getId().compareTo(p2.getId()));
 		System.out.println("printing list");
 		list.forEach(System.out::println);
 		System.out.println("=====================");
@@ -63,6 +64,13 @@ public class Program {
 		list.forEach(System.out :: println);
 		
 		
+		System.out.println("=== teste 7 inser seller ====");
+		Seller seller3 = new Seller(null,"Carmen", "carmen@gmail.com",sdf.parse("24/12/1986"), 2500.00, dep);
+		DaoFactory.createSellerDao().insert(seller3);
+		SellerDao sellerDao5 =DaoFactory.createSellerDao();
+		list =sellerDao5.findAll();
+		list.sort((p1,p2) -> p1.getId().compareTo(p2.getId()));
+		list.forEach(System.out::println);
 		
 		
 		
