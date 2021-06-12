@@ -95,8 +95,8 @@ public class SellerDaoJDBC implements SellerDao {
 		conn =DB.getConnection();
 		conn.setAutoCommit(false);
 		pst =conn.prepareStatement("UPDATE seller " 
-				+"SET Name = ?, Email =?, BirthDate=?, BaseSalary=?, DepartmentId=?"
-				+"WHERE Id = 8 ",
+				+"SET Name = ?, Email =?, BirthDate=?, BaseSalary=?, DepartmentId=? "
+				+"WHERE Id = ? ",
 				
 				PreparedStatement.RETURN_GENERATED_KEYS
 				);
@@ -111,11 +111,12 @@ public class SellerDaoJDBC implements SellerDao {
 			}
 		      pst.setDouble(4, seller.getBaseSalary());
 		      pst.setInt(5,seller.getDepartment().getId());
+		      pst.setInt(6, seller.getId());
 		      int rowsEffected = pst.executeUpdate();
 		     
 		  conn.commit();
 		
-		   System.out.println("rowsAffectd" + rowsEffected);
+		   System.out.println("rowsAffectd:  " + rowsEffected);
 		
 		}catch(SQLException e) {
 			
@@ -131,7 +132,6 @@ public class SellerDaoJDBC implements SellerDao {
 		}finally {
 			
 			DB.closeStatement(pst);
-			DB.closeConnection();
 			
 		}
 		
@@ -139,7 +139,32 @@ public class SellerDaoJDBC implements SellerDao {
 
 	@Override
 	public void deleteById(Integer id) {
-		// TODO Auto-generated method stub
+		String sql ="DELETE FROM seller WHERE Id = ? ";
+		PreparedStatement pst = null;
+		
+		try {
+			conn.setAutoCommit(false);
+			pst = conn.prepareStatement(sql);
+			pst.setInt(1, id);
+			boolean cont= pst.execute();
+			if(!cont) {
+				System.out.println("Id not found : ");
+			}
+			conn.commit();
+		}catch(SQLException e) {
+			
+			try {
+				conn.rollback();
+				throw new DbIntegrityException("Error caudes by: " + e.getMessage());
+			} catch (SQLException e1) {
+                throw new DbException("Error trying rolling back caused bay: " + e1.getMessage()); 
+			}
+			
+		}finally {
+			
+			DB.closeStatement(pst);
+		}
+		
 		
 	}
 
