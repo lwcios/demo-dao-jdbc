@@ -40,18 +40,16 @@ public class SellerDaoJDBC implements SellerDao {
 			conn = DB.getConnection();
 			conn.setAutoCommit(false);
 			
-			Seller sellerDao = seller;
-			
 			pst = conn.prepareStatement("INSERT INTO seller "
 					+"(Name,Email,BirthDate,BaseSalary,DepartmentId)"
 					+"VALUES"
 					+ "(?,?,?,?,?)",
 					PreparedStatement.RETURN_GENERATED_KEYS );
 			//transformando data em string
-			String data =sdf.format(( sellerDao.getBirthDate()));
+			String data =sdf.format(( seller.getBirthDate()));
 			
-			pst.setString(1,sellerDao.getName());
-			pst.setString(2,sellerDao.getEmail());
+			pst.setString(1,seller.getName());
+			pst.setString(2,seller.getEmail());
 			
 			//inserindo a data no db
 			try {
@@ -60,8 +58,8 @@ public class SellerDaoJDBC implements SellerDao {
 				throw new DbException(e.getMessage());	
 			}
 			
-			pst.setDouble(4,sellerDao.getBaseSalary() );
-			pst.setInt(5, sellerDao.getDepartment().getId());
+			pst.setDouble(4,seller.getBaseSalary() );
+			pst.setInt(5, seller.getDepartment().getId());
 			
 
 		  int ArrowsAffected = pst.executeUpdate();

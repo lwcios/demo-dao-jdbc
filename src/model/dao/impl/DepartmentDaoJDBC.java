@@ -9,6 +9,7 @@ import java.util.List;
 
 import db.DB;
 import db.DbException;
+import db.DbIntegrityException;
 import model.dao.DepartmentDao;
 import model.entities.Department;
 
@@ -28,13 +29,54 @@ public class DepartmentDaoJDBC implements DepartmentDao {
 	
 	@Override
 	public void insert(Department department) {
-		// TODO Auto-generated method stub
+		
+		try {
+			
+			conn =DB.getConnection();
+			conn.setAutoCommit(false);
+			pst =conn.prepareStatement("INSERT INTO department (Id,Name) VALUES(?,?)  ",
+					PreparedStatement.RETURN_GENERATED_KEYS);
+			pst.setInt(1, department.getId());
+			pst.setString(2, department.getName());
+			
+			int ArowsAffected =pst.executeUpdate();
+			
+			/*populando o departamento com o id gerado pelo banco de dados*/
+			if(ArowsAffected > 0) {
+				
+				System.out.println("arowsAffected " +  ArowsAffected);
+				rs = pst.getGeneratedKeys();
+				if(rs.next()) {
+					
+					int id =rs.getInt(1);
+					department.setId(id);	
+				}else {
+					
+					throw new DbException("No arrowsAffected ");
+				}
+			}
+			conn.commit();
+		}catch(SQLException e) {
+			
+			try {
+				conn.rollback();
+				throw new DbIntegrityException("Error caused by" + e.getMessage());
+			} catch (SQLException e1) {
+	           throw new DbException("Error trying rolling back" + e1.getMessage());
+			}
+		}finally {
+			
+			DB.closeResultSet(rs);
+			DB.closeStatement(pst);
+			
+		}
+		
 
 	}
 
 	@Override
 	public void update(Department department) {
-		// TODO Auto-generated method stub
+	
 
 	}
 
