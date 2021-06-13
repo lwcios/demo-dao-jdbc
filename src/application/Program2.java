@@ -30,13 +30,13 @@ public class Program2 {
 		
 		
 	/*	System.out.println("=== test 3 insert department ===");
-		Department department3 = new Department(7,"Ecommerce");
+		Department department3 = new Department(8,"dtftdg");
 		DepartmentDao departmentDao3 =DaoFactory.createDepartmentDao();
 		departmentDao3.insert(department3);
 		list =departmentDao3.findAll();
 		list.sort((p1,p2) -> p1.getId().compareTo(p2.getId()));
 		list.forEach(System.out :: println);
-		System.out.println();                 */
+		System.out.println();                */ 
 	
 		
 		
@@ -47,6 +47,15 @@ public class Program2 {
 		list = departmentDao4.findAll();
 		list.sort((p1,p2) -> p1.getId().compareTo(p2.getId()));
 		list.forEach(System.out :: println);
+		
+		
+		System.out.println(" === teste 5 delet by Id ===");
+		DepartmentDao departmentDao5 =DaoFactory.createDepartmentDao();
+		departmentDao5.deleteById(8);
+		list =departmentDao5.findAll();
+		list.sort((p1,p2) -> p1.getId().compareTo(p2.getId()));
+		list.forEach(System.out :: println);
+		System.out.println(); 
 		
 
 	}

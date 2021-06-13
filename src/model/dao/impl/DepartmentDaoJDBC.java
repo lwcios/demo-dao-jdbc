@@ -119,7 +119,44 @@ public class DepartmentDaoJDBC implements DepartmentDao {
 
 	@Override
 	public void deleteById(Integer id) {
-		// TODO Auto-generated method stub
+		
+		try {
+			conn =DB.getConnection();
+			conn.setAutoCommit(false);
+			pst = conn.prepareStatement("DELETE FROM department "
+					+"WHERE id =? ",
+					PreparedStatement.RETURN_GENERATED_KEYS
+					);
+			pst.setInt(1, id);
+			
+			int rowsAffected = pst.executeUpdate();
+			rs =pst.getGeneratedKeys();
+			if( rowsAffected == 0 ) {
+				throw new DbException("Id not found");
+				
+			}else {
+				
+				System.out.println("Department delected rowsAffected " + rowsAffected);   
+				
+			}
+			
+			conn.commit();
+			
+		}catch(SQLException e) {
+			
+			try {
+				conn.rollback();
+				throw new DbIntegrityException("unexpected error caused by" + e.getMessage());
+			} catch (SQLException e1) {
+				throw new DbException("Error trying" + e1.getMessage());
+			}
+			
+		}finally {
+			
+			DB.closeResultSet(rs);
+			DB.closeStatement(pst);
+			
+		}
 
 	}
 
