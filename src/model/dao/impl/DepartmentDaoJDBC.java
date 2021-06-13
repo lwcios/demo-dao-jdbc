@@ -39,12 +39,12 @@ public class DepartmentDaoJDBC implements DepartmentDao {
 			pst.setInt(1, department.getId());
 			pst.setString(2, department.getName());
 			
-			int ArowsAffected =pst.executeUpdate();
+			int rowsAffected =pst.executeUpdate();
 			
 			/*populando o departamento com o id gerado pelo banco de dados*/
-			if(ArowsAffected > 0) {
+			if(rowsAffected > 0) {
 				
-				System.out.println("arowsAffected " +  ArowsAffected);
+				System.out.println("rowsAffected " +  rowsAffected);
 				rs = pst.getGeneratedKeys();
 				if(rs.next()) {
 					
@@ -52,7 +52,7 @@ public class DepartmentDaoJDBC implements DepartmentDao {
 					department.setId(id);	
 				}else {
 					
-					throw new DbException("No arrowsAffected ");
+					throw new DbException("No rowsAffected ");
 				}
 			}
 			conn.commit();
@@ -77,6 +77,43 @@ public class DepartmentDaoJDBC implements DepartmentDao {
 	@Override
 	public void update(Department department) {
 	
+		try {
+			conn =DB.getConnection();
+			conn.setAutoCommit(false);
+			pst =conn.prepareStatement("UPDATE department " 
+					+"SET Id =? , Name =? "
+					+"WHERE " 
+					+"Id = ?",
+					PreparedStatement.RETURN_GENERATED_KEYS);
+			pst.setInt(1, department.getId());
+			pst.setString(2, department.getName());
+			pst.setInt(3, department.getId());
+			
+			
+			int rowsAffected = pst.executeUpdate();
+			if(rowsAffected >0) {
+			System.out.println("rowsAfected " + rowsAffected );
+			}else {
+				throw new DbException("Unexpected error ");
+				
+			}
+		
+			conn.commit();
+			
+		}catch(SQLException e) {
+			
+			try {
+				conn.rollback();
+				throw new DbIntegrityException("Unexpected error caused by " + e.getMessage());
+			} catch (SQLException e1) {
+				
+				throw new DbException("ERROR trying rollingback" + e1.getMessage()); 
+			}
+		}finally {
+			
+			DB.closeStatement(pst);
+			DB.closeResultSet(rs);
+		}
 
 	}
 
@@ -108,7 +145,7 @@ public class DepartmentDaoJDBC implements DepartmentDao {
 			
 		}catch(SQLException e) {
 			
-			throw new DbException("Error caused by: " + e.getMessage()); 
+			throw new DbException("Unexpected error caused by: " + e.getMessage()); 
 		}finally {
 			
 			DB.closeResultSet(rs);
